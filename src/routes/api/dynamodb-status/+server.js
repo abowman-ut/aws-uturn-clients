@@ -1,5 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { json } from '@sveltejs/kit';
 
 // AWS Configuration
 const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
@@ -22,11 +23,11 @@ const createDynamoClient = () => {
 };
 
 // Test DynamoDB connection
-export const testDynamoConnection = async () => {
+const testDynamoConnection = async () => {
 	try {
 		const client = createDynamoClient();
 		
-		// Try to list tables to test connection
+		// Try to scan a test table to check connection
 		const command = new ScanCommand({
 			TableName: 'test-connection-table',
 			Limit: 1
@@ -66,11 +67,19 @@ export const testDynamoConnection = async () => {
 	}
 };
 
-// Get connection status
-export const getConnectionStatus = async () => {
-	const result = await testDynamoConnection();
-	return {
-		timestamp: new Date().toISOString(),
-		...result
-	};
-};
+export async function GET() {
+	try {
+		const result = await testDynamoConnection();
+		return json({
+			timestamp: new Date().toISOString(),
+			...result
+		});
+	} catch (error) {
+		return json({
+			status: 'error',
+			message: `Server error: ${error.message}`,
+			region: AWS_REGION,
+			timestamp: new Date().toISOString()
+		}, { status: 500 });
+	}
+}

@@ -1,6 +1,5 @@
 <script>
 	import { onMount } from 'svelte';
-	import { getConnectionStatus } from '$lib/dynamodb.js';
 	
 	let connectionStatus = {
 		status: 'loading',
@@ -13,8 +12,9 @@
 	
 	onMount(async () => {
 		try {
-			const status = await getConnectionStatus();
-			connectionStatus = status;
+			const response = await fetch('/api/dynamodb-status');
+			const data = await response.json();
+			connectionStatus = data;
 		} catch (error) {
 			connectionStatus = {
 				status: 'error',
