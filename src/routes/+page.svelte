@@ -1,17 +1,5 @@
-<!-- Example usage of environment variables -->
-<!-- src/routes/+page.svelte -->
-
 <script>
-	import { env, isDevelopment, isProduction } from '$lib/env.js';
-	
-	// Example of using environment variables
-	const appName = env.APP_NAME;
-	const appEnv = env.APP_ENV;
-	const apiUrl = env.API_BASE_URL;
-	
-	// Environment checks
-	const isDev = isDevelopment();
-	const isProd = isProduction();
+	import DynamoStatus from '$lib/DynamoStatus.svelte';
 </script>
 
 <div class="container mt-5">
@@ -21,25 +9,13 @@
 				<div class="card-header">
 					<h1 class="card-title mb-0">
 						<i class="bi bi-heart-fill text-danger me-2"></i>
-						{appName}
+						AWS U-Turn Clients
 					</h1>
 				</div>
 				<div class="card-body">
 					<p class="card-text">
-						Welcome to your SvelteKit application with Bootstrap integration.
+						Welcome to your SvelteKit application with Bootstrap integration and DynamoDB connectivity.
 					</p>
-					
-					<!-- Environment Information (only show in development) -->
-					{#if isDev}
-						<div class="mt-4">
-							<h5>Environment Information</h5>
-							<div class="alert alert-info" role="alert">
-								<strong>Environment:</strong> {appEnv}<br>
-								<strong>API URL:</strong> {apiUrl}<br>
-								<strong>Database Type:</strong> {env.DATABASE_TYPE}
-							</div>
-						</div>
-					{/if}
 					
 					<div class="mt-4">
 						<h5>Features</h5>
@@ -66,6 +42,11 @@
 								<i class="bi bi-bootstrap me-1"></i>Bootstrap Docs
 							</a>
 						</div>
+					</div>
+					
+					<!-- DynamoDB Connection Status -->
+					<div class="mt-4">
+						<DynamoStatus />
 					</div>
 				</div>
 			</div>

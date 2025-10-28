@@ -7,10 +7,7 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
-		"setup:env": "node scripts/setup-env.js",
-		"setup:env:local": "node scripts/setup-env.js local",
-		"setup:env:production": "node scripts/setup-env.js production"
+		"prepare": "svelte-kit sync || echo ''"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^3.0.10",
