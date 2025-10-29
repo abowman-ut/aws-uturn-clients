@@ -9,16 +9,19 @@ const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 
 // Create DynamoDB client
 const createDynamoClient = () => {
-	const client = new DynamoDBClient({
-		region: AWS_REGION,
-		...(AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY && {
-			credentials: {
-				accessKeyId: AWS_ACCESS_KEY_ID,
-				secretAccessKey: AWS_SECRET_ACCESS_KEY
-			}
-		})
-	});
+	const clientConfig = {
+		region: AWS_REGION
+	};
 	
+	// Only add credentials if they exist
+	if (AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
+		clientConfig.credentials = {
+			accessKeyId: AWS_ACCESS_KEY_ID,
+			secretAccessKey: AWS_SECRET_ACCESS_KEY
+		};
+	}
+	
+	const client = new DynamoDBClient(clientConfig);
 	return DynamoDBDocumentClient.from(client);
 };
 
@@ -87,11 +90,12 @@ export async function GET() {
 			...result
 		});
 	} catch (error) {
+		// Handle any unexpected errors gracefully
 		return json({
 			status: 'error',
-			message: `Server error: ${error.message}`,
+			message: 'Unable to connect to DynamoDB',
 			region: AWS_REGION,
 			timestamp: new Date().toISOString()
-		}, { status: 500 });
+		});
 	}
 }
