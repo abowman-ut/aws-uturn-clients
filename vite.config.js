@@ -7,6 +7,6 @@ export default defineConfig(({ mode }) => {
 	
 	return {
 		plugins: [sveltekit()],
-		envPrefix: ['VITE_', 'AWS_']
+		envPrefix: ['VITE_', 'AWS_', 'MY_AWS_']
 	};
 });

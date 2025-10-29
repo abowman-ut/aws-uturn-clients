@@ -1,100 +1,16 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { json } from '@sveltejs/kit';
-
-// AWS Configuration - Use environment variables directly
-const AWS_REGION = process.env.AWS_REGION || 'us-east-2';
-const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
-
-// Create DynamoDB client
-const createDynamoClient = () => {
-	const clientConfig = {
-		region: AWS_REGION
-	};
-	
-	// Only add credentials if they exist
-	if (AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
-		clientConfig.credentials = {
-			accessKeyId: AWS_ACCESS_KEY_ID,
-			secretAccessKey: AWS_SECRET_ACCESS_KEY
-		};
-	}
-	
-	const client = new DynamoDBClient(clientConfig);
-	return DynamoDBDocumentClient.from(client);
-};
-
-// Test DynamoDB connection
-const testDynamoConnection = async () => {
-	try {
-		// Check if credentials are available
-		if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
-			return { 
-				status: 'error', 
-				message: 'AWS credentials not configured',
-				region: AWS_REGION
-			};
-		}
-
-		const client = createDynamoClient();
-		
-		// Try to scan a test table to check connection
-		const command = new ScanCommand({
-			TableName: 'test-connection-table',
-			Limit: 1
-		});
-		
-		await client.send(command);
-		return { 
-			status: 'connected', 
-			message: 'Successfully connected to DynamoDB',
-			region: AWS_REGION
-		};
-	} catch (error) {
-		// Check if it's a table not found error (which means connection works)
-		if (error.name === 'ResourceNotFoundException') {
-			return { 
-				status: 'connected', 
-				message: 'Connected to DynamoDB (table not found - expected)',
-				region: AWS_REGION
-			};
-		}
-		
-		// Check for credential errors
-		if (error.name === 'CredentialsProviderError' || 
-			error.message.includes('credentials') || 
-			error.message.includes('InvalidUserID.NotFound') ||
-			error.message.includes('security token')) {
-			return { 
-				status: 'error', 
-				message: 'AWS credentials not configured or invalid',
-				region: AWS_REGION
-			};
-		}
-		
-		// Other connection errors
-		return { 
-			status: 'error', 
-			message: `Connection failed: ${error.message}`,
-			region: AWS_REGION
-		};
-	}
-};
+import { getConnectionStatus } from '$lib/dynamodb.js';
 
 export async function GET() {
 	try {
-		const result = await testDynamoConnection();
-		return json({
-			timestamp: new Date().toISOString(),
-			...result
-		});
+		const result = await getConnectionStatus();
+		return json(result);
 	} catch (error) {
 		// Handle any unexpected errors gracefully
 		return json({
 			status: 'error',
 			message: 'Unable to connect to DynamoDB',
-			region: AWS_REGION,
+			region: 'us-east-2',
 			timestamp: new Date().toISOString()
 		});
 	}
