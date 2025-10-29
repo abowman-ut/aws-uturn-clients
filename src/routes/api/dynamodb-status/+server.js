@@ -4,22 +4,24 @@ import { json } from '@sveltejs/kit';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-// Load environment variables manually
+// Load environment variables for local development
 let envVars = {};
-try {
-	const envPath = join(process.cwd(), '.env');
-	const envContent = readFileSync(envPath, 'utf8');
-	envContent.split('\n').forEach(line => {
-		const [key, ...valueParts] = line.split('=');
-		if (key && valueParts.length > 0) {
-			envVars[key.trim()] = valueParts.join('=').trim();
-		}
-	});
-} catch (error) {
-	console.log('Could not load .env file:', error.message);
+if (process.env.NODE_ENV === 'development') {
+	try {
+		const envPath = join(process.cwd(), '.env');
+		const envContent = readFileSync(envPath, 'utf8');
+		envContent.split('\n').forEach(line => {
+			const [key, ...valueParts] = line.split('=');
+			if (key && valueParts.length > 0) {
+				envVars[key.trim()] = valueParts.join('=').trim();
+			}
+		});
+	} catch (error) {
+		// Silently fail in development if .env doesn't exist
+	}
 }
 
-// AWS Configuration
+// AWS Configuration - Use environment variables (dev from .env, prod from process.env)
 const AWS_REGION = envVars.AWS_REGION || process.env.AWS_REGION || 'us-east-2';
 const AWS_ACCESS_KEY_ID = envVars.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = envVars.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY;
@@ -42,6 +44,15 @@ const createDynamoClient = () => {
 // Test DynamoDB connection
 const testDynamoConnection = async () => {
 	try {
+		// Check if credentials are available
+		if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
+			return { 
+				status: 'error', 
+				message: 'AWS credentials not configured',
+				region: AWS_REGION
+			};
+		}
+
 		const client = createDynamoClient();
 		
 		// Try to scan a test table to check connection
@@ -67,10 +78,13 @@ const testDynamoConnection = async () => {
 		}
 		
 		// Check for credential errors
-		if (error.name === 'CredentialsProviderError' || error.message.includes('credentials')) {
+		if (error.name === 'CredentialsProviderError' || 
+			error.message.includes('credentials') || 
+			error.message.includes('InvalidUserID.NotFound') ||
+			error.message.includes('security token')) {
 			return { 
 				status: 'error', 
-				message: 'AWS credentials not configured',
+				message: 'AWS credentials not configured or invalid',
 				region: AWS_REGION
 			};
 		}
