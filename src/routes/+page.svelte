@@ -7,10 +7,18 @@
 		<div class="col-md-8">
 			<div class="card">
 				<div class="card-header">
-					<h1 class="card-title mb-0">
-						<i class="bi bi-heart-fill text-danger me-2"></i>
-						AWS U-Turn Clients
-					</h1>
+					<div class="d-flex justify-content-between align-items-center">
+						<h1 class="card-title mb-0">
+							<i class="bi bi-heart-fill text-danger me-2"></i>
+							AWS U-Turn Clients
+						</h1>
+						{#if import.meta.env.DEV}
+							<span class="badge bg-warning text-dark">
+								<i class="bi bi-code-slash me-1"></i>
+								DEV
+							</span>
+						{/if}
+					</div>
 				</div>
 				<div class="card-body">
 					<p class="card-text">

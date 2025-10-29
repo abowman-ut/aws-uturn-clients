@@ -11,4 +11,18 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </svelte:head>
 
+<!-- Development Environment Banner -->
+{#if import.meta.env.DEV}
+	<div class="alert alert-warning alert-dismissible fade show mb-0" role="alert" style="border-radius: 0;">
+		<div class="container">
+			<div class="d-flex align-items-center">
+				<i class="bi bi-code-slash me-2"></i>
+				<strong>Development Mode</strong>
+				<span class="ms-2">Working locally</span>
+				<button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+		</div>
+	</div>
+{/if}
+
 {@render children?.()}
