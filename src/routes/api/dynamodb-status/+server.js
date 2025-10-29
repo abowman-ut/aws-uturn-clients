@@ -1,30 +1,11 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { json } from '@sveltejs/kit';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 
-// Load environment variables for local development
-let envVars = {};
-if (process.env.NODE_ENV === 'development') {
-	try {
-		const envPath = join(process.cwd(), '.env');
-		const envContent = readFileSync(envPath, 'utf8');
-		envContent.split('\n').forEach(line => {
-			const [key, ...valueParts] = line.split('=');
-			if (key && valueParts.length > 0) {
-				envVars[key.trim()] = valueParts.join('=').trim();
-			}
-		});
-	} catch (error) {
-		// Silently fail in development if .env doesn't exist
-	}
-}
-
-// AWS Configuration - Use environment variables (dev from .env, prod from process.env)
-const AWS_REGION = envVars.AWS_REGION || process.env.AWS_REGION || 'us-east-2';
-const AWS_ACCESS_KEY_ID = envVars.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID;
-const AWS_SECRET_ACCESS_KEY = envVars.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY;
+// AWS Configuration - Use environment variables directly
+const AWS_REGION = process.env.AWS_REGION || 'us-east-2';
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 
 // Create DynamoDB client
 const createDynamoClient = () => {
